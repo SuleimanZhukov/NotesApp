@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="notes">
+        <item>Work</item>
+        <item>Sport</item>
+        <item>Book</item>
+    </string-array>
+</resources>

@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">NotesApp</string>
+    <string name="app_name">Notes</string>
+    <string name="action_bar_details">Title</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="edit_text_hint">Write your note here</string>
 </resources>
