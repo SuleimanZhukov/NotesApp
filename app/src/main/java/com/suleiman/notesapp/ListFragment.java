@@ -24,6 +24,7 @@ public class ListFragment extends Fragment {
     private onFragmentSendDataListener mFragmentSendDataListener;
 
     private static final String ARG_NOTE = "ListFragment.note";
+    private static final String BACK_STACK = "addToBackStack.note";
 
     private String mName;
     private String mDate;
@@ -70,11 +71,15 @@ public class ListFragment extends Fragment {
         CardView card2 = view.findViewById(R.id.card2);
         CardView card3 = view.findViewById(R.id.card3);
         CardView card4 = view.findViewById(R.id.card4);
+        CardView card5 = view.findViewById(R.id.card5);
+        CardView card6 = view.findViewById(R.id.card6);
 
         card1.setOnClickListener(clickListener);
         card2.setOnClickListener(clickListener);
         card3.setOnClickListener(clickListener);
         card4.setOnClickListener(clickListener);
+        card5.setOnClickListener(clickListener);
+        card6.setOnClickListener(clickListener);
     }
 
     private View.OnClickListener clickListener = (view) -> {
@@ -83,6 +88,7 @@ public class ListFragment extends Fragment {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.add(R.id.fragment_container, detailsFragment);
         transaction.setReorderingAllowed(true);
+        transaction.addToBackStack(BACK_STACK);
         transaction.commit();
 
 //        switch (view.getId()) {
