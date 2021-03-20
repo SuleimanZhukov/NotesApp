@@ -7,6 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,27 +78,38 @@ public class ListFragment extends Fragment {
     }
 
     private View.OnClickListener clickListener = (view) -> {
-        switch (view.getId()) {
-            case R.id.card1: {
-                TextView textView = view.findViewById(R.id.title1);
-                mFragmentSendDataListener.onSendData(textView.getText().toString());
-                break;
-            }
-            case R.id.card2: {
-                TextView textView = view.findViewById(R.id.title2);
-                mFragmentSendDataListener.onSendData(textView.getText().toString());
-                break;
-            }
-            case R.id.card3: {
-                TextView textView = view.findViewById(R.id.title3);
-                mFragmentSendDataListener.onSendData(textView.getText().toString());
-                break;
-            }
-            case R.id.card4: {
-                TextView textView = view.findViewById(R.id.title4);
-                mFragmentSendDataListener.onSendData(textView.getText().toString());
-                break;
-            }
-        }
+        DetailsFragment detailsFragment = new DetailsFragment();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.add(R.id.fragment_container, detailsFragment);
+        transaction.setReorderingAllowed(true);
+        transaction.commit();
+
+//        switch (view.getId()) {
+//            case R.id.card1: {
+//                DetailsFragment detailsFragment = new DetailsFragment();
+//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//                FragmentTransaction transaction = fragmentManager.beginTransaction();
+//                transaction.add(R.id.fragment_container, detailsFragment);
+//                transaction.setReorderingAllowed(true);
+//                transaction.commit();
+//                break;
+//            }
+//            case R.id.card2: {
+//                TextView textView = view.findViewById(R.id.title2);
+//                mFragmentSendDataListener.onSendData(textView.getText().toString());
+//                break;
+//            }
+//            case R.id.card3: {
+//                TextView textView = view.findViewById(R.id.title3);
+//                mFragmentSendDataListener.onSendData(textView.getText().toString());
+//                break;
+//            }
+//            case R.id.card4: {
+//                TextView textView = view.findViewById(R.id.title4);
+//                mFragmentSendDataListener.onSendData(textView.getText().toString());
+//                break;
+//            }
+//        }
     };
 }
