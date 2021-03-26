@@ -4,5 +4,17 @@
         <item>Work</item>
         <item>Sport</item>
         <item>Book</item>
+        <item>Cook</item>
+        <item>Homework</item>
+        <item>Code</item>
+    </string-array>
+
+    <string-array name="dates">
+        <item>2/5/2021</item>
+        <item>4/5/2021</item>
+        <item>1/4/2021</item>
+        <item>17/8/2020</item>
+        <item>5/2/2019</item>
+        <item>23/6/2019</item>
     </string-array>
 </resources>
