@@ -22,4 +22,14 @@ public class CardDataSourceImpl implements CardDataSource {
     public List<CardData> getCardData() {
         return mData;
     }
+
+    @Override
+    public CardData getItemAt(int index) {
+        return mData.get(index);
+    }
+
+    @Override
+    public int getItemsCount() {
+        return mData.size();
+    }
 }

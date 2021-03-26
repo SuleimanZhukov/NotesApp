@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 public class ListFragment extends Fragment {
 
@@ -85,7 +86,7 @@ public class ListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         CardView card = view.findViewById(R.id.card_view);
-        card.setOnClickListener(clickListener);
+
     }
 
     private void clickAction() {
@@ -109,11 +110,18 @@ public class ListFragment extends Fragment {
     }
 
     private static class ViewHolder extends RecyclerView.ViewHolder {
-        public final CardView cardView;
+        public final TextView titleText;
+        public final TextView dateText;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            cardView = itemView.findViewById(R.id.card_view);
+            titleText = itemView.findViewById(R.id.title_text);
+            dateText = itemView.findViewById(R.id.date_text);
+        }
+
+        public void populate(CardData cardData) {
+            titleText.setText(cardData.title);
+            dateText.setText(cardData.date);
         }
     }
 
@@ -132,6 +140,10 @@ public class ListFragment extends Fragment {
             mDataSource = dataSource;
         }
 
+        public void setOnClickListener(OnClickListener onClickListener) {
+            mOnClickListener = onClickListener;
+        }
+
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -139,18 +151,20 @@ public class ListFragment extends Fragment {
             return new ViewHolder(view);
         }
 
-        public void setOnClickListener(OnClickListener onClickListener) {
-            mOnClickListener = onClickListener;
-        }
-
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
+            CardData cardData = mDataSource.getItemAt(position);
+            holder.populate(cardData);
+            holder.itemView.setOnClickListener((view) -> {
+                if (mOnClickListener != null) {
+                    mOnClickListener.onItemClick(view, position);
+                }
+            });
         }
 
         @Override
         public int getItemCount() {
-            return 0;
+            return mDataSource.getItemsCount();
         }
     }
 }
