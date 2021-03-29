@@ -2,11 +2,23 @@ package com.suleiman.notesapp;
 
 
 public class CardData {
-    public final String title;
-    public final String date;
+    private String mTitle;
+    private String mDate;
 
     public CardData(String title, String date) {
-        this.title = title;
-        this.date = date;
+        mTitle = title;
+        mDate = date;
+    }
+
+    public void setTitle(String title) {
+        mTitle = title;
+    }
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public String getDate() {
+        return mDate;
     }
 }

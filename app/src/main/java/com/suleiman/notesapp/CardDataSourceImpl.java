@@ -6,8 +6,21 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class CardDataSourceImpl implements CardDataSource {
-
+    private volatile static CardDataSourceImpl sInstance;
     private final LinkedList<CardData> mData = new LinkedList<>();
+
+    public static CardDataSourceImpl getInstance(Resources resources) {
+        CardDataSourceImpl instance = sInstance;
+        if (instance == null) {
+            synchronized (CardDataSourceImpl.class) {
+                if (sInstance == null) {
+                    instance = new CardDataSourceImpl(resources);
+                    sInstance = instance;
+                }
+            }
+        }
+        return instance;
+    }
 
     public CardDataSourceImpl(Resources resources) {
         String[] titles = resources.getStringArray(R.array.notes);
@@ -32,4 +45,20 @@ public class CardDataSourceImpl implements CardDataSource {
     public int getItemsCount() {
         return mData.size();
     }
+
+    @Override
+    public void add(CardData cardData) {
+        mData.add(cardData);
+    }
+
+    @Override
+    public void remove(int position) {
+        mData.remove(position);
+    }
+
+    @Override
+    public void clear() {
+        mData.clear();
+    }
+
 }
