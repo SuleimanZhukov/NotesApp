@@ -12,9 +12,11 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -29,6 +31,10 @@ public class ListFragment extends Fragment {
 
     private static final String ARG_NOTE = "ListFragment.note";
     private static final String BACK_STACK = "addToBackStack.note";
+    private ViewHolderAdapter mViewHolderAdapter;
+    private CardDataSource mCardDataSource;
+    private RecyclerView mRecyclerView;
+    private int mLastSelectedPosition = -1;
 
     private String mName;
     private String mDate;
@@ -37,14 +43,6 @@ public class ListFragment extends Fragment {
 
     public ListFragment() {
         // Required empty public constructor
-    }
-
-    public static ListFragment newInstance(Data data) {
-        ListFragment fragment = new ListFragment();
-        Bundle args = new Bundle();
-        args.putParcelable(ARG_NOTE, data);
-        fragment.setArguments(args);
-        return fragment;
     }
 
     @Override
@@ -65,20 +63,21 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        RecyclerView recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_list, container, false);
-        recyclerView.setHasFixedSize(true);
+        mRecyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_list, container, false);
+        mRecyclerView.setHasFixedSize(true);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireActivity());
-        recyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setLayoutManager(layoutManager);
 
-        ViewHolderAdapter viewHolderAdapter = new ViewHolderAdapter(inflater, new CardDataSourceImpl(getResources()));
-        viewHolderAdapter.setOnClickListener((view, position) -> {
+        mCardDataSource = CardDataSourceImpl.getInstance(getResources());
+        mViewHolderAdapter = new ViewHolderAdapter(this, mCardDataSource);
+        mViewHolderAdapter.setOnClickListener((view, position) -> {
             clickAction();
         });
 
-        recyclerView.setAdapter(viewHolderAdapter);
+        mRecyclerView.setAdapter(mViewHolderAdapter);
 
-        return recyclerView;
+        return mRecyclerView;
     }
 
     @Override
@@ -109,62 +108,57 @@ public class ListFragment extends Fragment {
         inflater.inflate(R.menu.toolbar_menu, menu);
     }
 
-    private static class ViewHolder extends RecyclerView.ViewHolder {
-        public final TextView titleText;
-        public final TextView dateText;
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-            titleText = itemView.findViewById(R.id.title_text);
-            dateText = itemView.findViewById(R.id.date_text);
-        }
-
-        public void populate(CardData cardData) {
-            titleText.setText(cardData.title);
-            dateText.setText(cardData.date);
-        }
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater menuInflater = requireActivity().getMenuInflater();
+        menuInflater.inflate(R.menu.note_item_menu, menu);
     }
 
-    private interface OnClickListener {
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.item_menu_edit) {
+            if (mLastSelectedPosition != -1) {
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.add(R.id.fragment_container, EditorFragment.newInstance(mLastSelectedPosition));
+                transaction.setReorderingAllowed(true);
+                transaction.addToBackStack(BACK_STACK);
+                transaction.commit();
+            }
+        } else if (item.getItemId() == R.id.item_menu_delete) {
+            if (mLastSelectedPosition != -1) {
+                mCardDataSource.remove(mLastSelectedPosition);
+                mViewHolderAdapter.notifyItemRemoved(mLastSelectedPosition);
+            }
+        } else {
+            return super.onContextItemSelected(item);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.toolbar_menu_add) {
+            mCardDataSource.add(new CardData("Untitled", "27/03/2021"));
+            int position = mCardDataSource.getItemsCount() - 1;
+            mViewHolderAdapter.notifyItemInserted(position);
+            mRecyclerView.scrollToPosition(position);
+        } else if (item.getItemId() == R.id.toolbar_menu_clear) {
+            mCardDataSource.clear();
+            mViewHolderAdapter.notifyDataSetChanged();
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+        return true;
+    }
+
+    public void setLastSelectedPosition(int lastSelectedPosition) {
+        mLastSelectedPosition = lastSelectedPosition;
+    }
+
+    public interface OnClickListener {
         void onItemClick(View view, int position);
     }
 
-    private static class ViewHolderAdapter extends RecyclerView.Adapter<ViewHolder> {
-        private final LayoutInflater mInflater;
-        private final CardDataSource mDataSource;
-
-        private OnClickListener mOnClickListener;
-
-        public ViewHolderAdapter(LayoutInflater inflater, CardDataSource dataSource) {
-            mInflater = inflater;
-            mDataSource = dataSource;
-        }
-
-        public void setOnClickListener(OnClickListener onClickListener) {
-            mOnClickListener = onClickListener;
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = mInflater.inflate(R.layout.card_view, parent, false);
-            return new ViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-            CardData cardData = mDataSource.getItemAt(position);
-            holder.populate(cardData);
-            holder.itemView.setOnClickListener((view) -> {
-                if (mOnClickListener != null) {
-                    mOnClickListener.onItemClick(view, position);
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return mDataSource.getItemsCount();
-        }
-    }
 }

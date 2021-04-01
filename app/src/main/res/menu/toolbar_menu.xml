@@ -8,12 +8,7 @@
         android:icon="@drawable/ic_add" />
 
     <item
-        android:id="@+id/toolbar_menu_edit"
-        android:title="Edit" app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_edit" />
-
-    <item
-        android:id="@+id/toolbar_menu_remove"
+        android:id="@+id/toolbar_menu_clear"
         android:title="Remove" app:showAsAction="ifRoom"
         android:icon="@drawable/ic_delete" />
 
