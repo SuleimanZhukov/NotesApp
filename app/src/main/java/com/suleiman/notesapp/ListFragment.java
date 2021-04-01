@@ -9,6 +9,8 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -63,29 +65,31 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        return inflater.inflate(R.layout.fragment_list, container, false);
+        RecyclerView recyclerView = (RecyclerView) inflater.inflate(R.layout.fragment_list, container, false);
+        recyclerView.setHasFixedSize(true);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(requireActivity());
+        recyclerView.setLayoutManager(layoutManager);
+
+        ViewHolderAdapter viewHolderAdapter = new ViewHolderAdapter(inflater, new CardDataSourceImpl(getResources()));
+        viewHolderAdapter.setOnClickListener((view, position) -> {
+            clickAction();
+        });
+
+        recyclerView.setAdapter(viewHolderAdapter);
+
+        return recyclerView;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        CardView card1 = view.findViewById(R.id.card1);
-        CardView card2 = view.findViewById(R.id.card2);
-        CardView card3 = view.findViewById(R.id.card3);
-        CardView card4 = view.findViewById(R.id.card4);
-        CardView card5 = view.findViewById(R.id.card5);
-        CardView card6 = view.findViewById(R.id.card6);
+        CardView card = view.findViewById(R.id.card_view);
 
-        card1.setOnClickListener(clickListener);
-        card2.setOnClickListener(clickListener);
-        card3.setOnClickListener(clickListener);
-        card4.setOnClickListener(clickListener);
-        card5.setOnClickListener(clickListener);
-        card6.setOnClickListener(clickListener);
     }
 
-    private View.OnClickListener clickListener = (view) -> {
+    private void clickAction() {
         DetailsFragment detailsFragment = new DetailsFragment();
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -93,11 +97,74 @@ public class ListFragment extends Fragment {
         transaction.setReorderingAllowed(true);
         transaction.addToBackStack(BACK_STACK);
         transaction.commit();
+    }
+
+    private View.OnClickListener clickListener = (view) -> {
+        clickAction();
     };
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.toolbar_menu, menu);
+    }
+
+    private static class ViewHolder extends RecyclerView.ViewHolder {
+        public final TextView titleText;
+        public final TextView dateText;
+
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            titleText = itemView.findViewById(R.id.title_text);
+            dateText = itemView.findViewById(R.id.date_text);
+        }
+
+        public void populate(CardData cardData) {
+            titleText.setText(cardData.title);
+            dateText.setText(cardData.date);
+        }
+    }
+
+    private interface OnClickListener {
+        void onItemClick(View view, int position);
+    }
+
+    private static class ViewHolderAdapter extends RecyclerView.Adapter<ViewHolder> {
+        private final LayoutInflater mInflater;
+        private final CardDataSource mDataSource;
+
+        private OnClickListener mOnClickListener;
+
+        public ViewHolderAdapter(LayoutInflater inflater, CardDataSource dataSource) {
+            mInflater = inflater;
+            mDataSource = dataSource;
+        }
+
+        public void setOnClickListener(OnClickListener onClickListener) {
+            mOnClickListener = onClickListener;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = mInflater.inflate(R.layout.card_view, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            CardData cardData = mDataSource.getItemAt(position);
+            holder.populate(cardData);
+            holder.itemView.setOnClickListener((view) -> {
+                if (mOnClickListener != null) {
+                    mOnClickListener.onItemClick(view, position);
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return mDataSource.getItemsCount();
+        }
     }
 }
