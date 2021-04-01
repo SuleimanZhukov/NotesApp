@@ -11,6 +11,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -60,6 +62,7 @@ public class ListFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_list, container, false);
     }
 
@@ -90,32 +93,11 @@ public class ListFragment extends Fragment {
         transaction.setReorderingAllowed(true);
         transaction.addToBackStack(BACK_STACK);
         transaction.commit();
-
-//        switch (view.getId()) {
-//            case R.id.card1: {
-//                DetailsFragment detailsFragment = new DetailsFragment();
-//                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                FragmentTransaction transaction = fragmentManager.beginTransaction();
-//                transaction.add(R.id.fragment_container, detailsFragment);
-//                transaction.setReorderingAllowed(true);
-//                transaction.commit();
-//                break;
-//            }
-//            case R.id.card2: {
-//                TextView textView = view.findViewById(R.id.title2);
-//                mFragmentSendDataListener.onSendData(textView.getText().toString());
-//                break;
-//            }
-//            case R.id.card3: {
-//                TextView textView = view.findViewById(R.id.title3);
-//                mFragmentSendDataListener.onSendData(textView.getText().toString());
-//                break;
-//            }
-//            case R.id.card4: {
-//                TextView textView = view.findViewById(R.id.title4);
-//                mFragmentSendDataListener.onSendData(textView.getText().toString());
-//                break;
-//            }
-//        }
     };
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.toolbar_menu, menu);
+    }
 }
