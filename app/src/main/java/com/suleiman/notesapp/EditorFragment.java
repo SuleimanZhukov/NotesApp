@@ -48,6 +48,7 @@ public class EditorFragment extends Fragment {
         final MaterialButton btnSave = view.findViewById(R.id.btn_save);
         btnSave.setOnClickListener((v) -> {
             cardData.setTitle(editText.getText().toString());
+            dataSource.update(cardData);
             getFragmentManager().popBackStack();
         });
         return view;

@@ -41,6 +41,36 @@ public class ListFragment extends Fragment {
 
     private Publisher publisher;
 
+    private CardDataSource.CardDataSourceListener mListener = new CardDataSource.CardDataSourceListener() {
+        @Override
+        public void onItemAdded(int idx) {
+            if (mViewHolderAdapter != null) {
+                mViewHolderAdapter.notifyItemInserted(idx);
+            }
+        }
+
+        @Override
+        public void onItemRemoved(int idx) {
+            if (mViewHolderAdapter != null) {
+                mViewHolderAdapter.notifyItemRemoved(idx);
+            }
+        }
+
+        @Override
+        public void onItemUpdated(int idx) {
+            if (mViewHolderAdapter != null) {
+                mViewHolderAdapter.notifyItemChanged(idx);
+            }
+        }
+
+        @Override
+        public void onDataSetChanged() {
+            if (mViewHolderAdapter != null) {
+                mViewHolderAdapter.notifyDataSetChanged();
+            }
+        }
+    };
+
     public ListFragment() {
         // Required empty public constructor
     }
@@ -69,8 +99,9 @@ public class ListFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireActivity());
         mRecyclerView.setLayoutManager(layoutManager);
 
-        mCardDataSource = CardDataSourceImpl.getInstance(getResources());
+        mCardDataSource = CardDataSourceFirebaseImpl.getInstance();
         mViewHolderAdapter = new ViewHolderAdapter(this, mCardDataSource);
+        mCardDataSource.addCardDataSourceListener(mListener);
         mViewHolderAdapter.setOnClickListener((view, position) -> {
             clickAction();
         });
@@ -78,6 +109,12 @@ public class ListFragment extends Fragment {
         mRecyclerView.setAdapter(mViewHolderAdapter);
 
         return mRecyclerView;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mCardDataSource.removeCardDataSourceListener(mListener);
     }
 
     @Override
