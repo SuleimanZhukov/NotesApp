@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -165,8 +166,17 @@ public class ListFragment extends Fragment {
             }
         } else if (item.getItemId() == R.id.item_menu_delete) {
             if (mLastSelectedPosition != -1) {
-                mCardDataSource.remove(mLastSelectedPosition);
-                mViewHolderAdapter.notifyItemRemoved(mLastSelectedPosition);
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity()).
+                        setTitle("CAUTION").
+                        setMessage("Are you sure to delete this note?").
+                        setCancelable(false).
+                        setPositiveButton("Yes", (dialog, which) -> {
+                            mCardDataSource.remove(mLastSelectedPosition);
+                            mViewHolderAdapter.notifyItemRemoved(mLastSelectedPosition);
+                        }).setNegativeButton("No", (dialog, which) -> {
+
+                });
+                builder.show();
             }
         } else {
             return super.onContextItemSelected(item);
