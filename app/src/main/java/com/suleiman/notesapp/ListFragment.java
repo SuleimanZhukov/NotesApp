@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -99,7 +100,7 @@ public class ListFragment extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireActivity());
         mRecyclerView.setLayoutManager(layoutManager);
 
-        mCardDataSource = CardDataSourceFirebaseImpl.getInstance();
+        mCardDataSource = CardDataSourceImpl.getInstance(getResources());
         mViewHolderAdapter = new ViewHolderAdapter(this, mCardDataSource);
         mCardDataSource.addCardDataSourceListener(mListener);
         mViewHolderAdapter.setOnClickListener((view, position) -> {
@@ -165,8 +166,17 @@ public class ListFragment extends Fragment {
             }
         } else if (item.getItemId() == R.id.item_menu_delete) {
             if (mLastSelectedPosition != -1) {
-                mCardDataSource.remove(mLastSelectedPosition);
-                mViewHolderAdapter.notifyItemRemoved(mLastSelectedPosition);
+                AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity()).
+                        setTitle("CAUTION").
+                        setMessage("Are you sure to delete this note?").
+                        setCancelable(false).
+                        setPositiveButton("Yes", (dialog, which) -> {
+                            mCardDataSource.remove(mLastSelectedPosition);
+                            mViewHolderAdapter.notifyItemRemoved(mLastSelectedPosition);
+                        }).setNegativeButton("No", (dialog, which) -> {
+
+                });
+                builder.show();
             }
         } else {
             return super.onContextItemSelected(item);
@@ -182,8 +192,17 @@ public class ListFragment extends Fragment {
             mViewHolderAdapter.notifyItemInserted(position);
             mRecyclerView.scrollToPosition(position);
         } else if (item.getItemId() == R.id.toolbar_menu_clear) {
-            mCardDataSource.clear();
-            mViewHolderAdapter.notifyDataSetChanged();
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity()).
+                    setTitle("CAUTION").
+                    setMessage("Are you sure to delete this note?").
+                    setCancelable(false).
+                    setPositiveButton("Yes", (dialog, which) -> {
+                        mCardDataSource.clear();
+                        mViewHolderAdapter.notifyDataSetChanged();
+                    }).setNegativeButton("No", (dialog, which) -> {
+
+            });
+            builder.show();
         } else {
             return super.onOptionsItemSelected(item);
         }
@@ -196,6 +215,10 @@ public class ListFragment extends Fragment {
 
     public interface OnClickListener {
         void onItemClick(View view, int position);
+    }
+
+    public CardDataSource getCardDataSource() {
+        return mCardDataSource;
     }
 
 }
